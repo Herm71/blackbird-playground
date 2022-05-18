@@ -1,0 +1,26 @@
+{
+    "name": "jason/playground",
+    "description": "Playground plugin for dev",
+    "type": "project",
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^2.3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jason\\Playground\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jason Chafin",
+            "email": "jasonchafin@gmail.com"
+        }
+    ],
+    "require": {},
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
