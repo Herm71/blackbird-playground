@@ -4,7 +4,15 @@
   "description": "Playground plugin for dev",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "standard-version",
+    "zip": "wp-scripts build && wp-scripts plugin-zip",
+    "start": "wp-scripts start",
+    "start:hot": "wp-scripts start --hot",
+    "build": "wp-scripts build",
+    "lint:style": "wp-scripts lint-style 'src/scss/**/*.scss'",
+    "packages-update": "wp-scripts packages-update",
+    "postpackages-update": "npm run build",
+    "format:src": "wp-scripts format ./src"
   },
   "keywords": [
     "php"
