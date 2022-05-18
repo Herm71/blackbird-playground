@@ -3,7 +3,7 @@
  * Plugin Name: Blackbird's Playground
  * Plugin URI: https://github.com/ucsc/ucsc-custom-functionality.git
  * Description: Sandbox plugin for testing php functions.
- * Version: 0.1.0
+ * Version: 1.0.0
  * Author: @Herm71
  * Author URI: https://github.com/Herm71
  * License: GPL2
