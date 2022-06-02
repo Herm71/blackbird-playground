@@ -50,15 +50,16 @@ function ucsc_has_post_format() {
 }
 
 
-// function ucsc_parse_blocks() {
-// 	global $post;
-// 	$blocks = parse_blocks( $post->post_content );
+function ucsc_parse_blocks() {
+	global $post;
+	$blocks = parse_blocks( $post->post_content );
 
-// 	echo '<pre>';
-// 	var_dump( $blocks );
-// 	echo '</pre>';
+	echo '<pre>';
+	var_dump( $blocks );
+	echo '</pre>';
 
-// }
+}
+// add_action( 'wp_head', 'ucsc_parse_blocks' );
 
 function location() {
 	$site_location = home_url();
@@ -69,8 +70,9 @@ function location() {
 function which_template() {
 	 global $wp_query;
 	 global $template;
-
-	// var_dump( $wp_query->query_vars );
+echo '<pre>';
+	var_dump( $wp_query->query_vars );
+	echo '</pre>';
 
 	if ( is_front_page() && is_home() ) {
 		echo '<pre>is_front_page() && is_home()</pre>';
