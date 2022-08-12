@@ -24,7 +24,8 @@
 
 /* Add a paragraph only to Pages. */
 function my_added_page_content ( $content ) {
-    if ( is_page(1881) ) {
+		$sample_page = 2;
+    if ( is_page($sample_page) ) {
 				$new_content = '<p>My new content</p>';
 				$content =$new_content;
         return $content;
