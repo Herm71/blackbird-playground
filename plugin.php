@@ -18,8 +18,24 @@
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+/**	
+ * replace content */
 
 
+/* Add a paragraph only to Pages. */
+function my_added_page_content ( $content ) {
+    if ( is_page(1881) ) {
+				$new_content = '<p>My new content</p>';
+				$content =$new_content;
+        return $content;
+    }
+ 
+    return $content;
+}
+add_filter( 'the_content', 'my_added_page_content');
+
+/**	
+ * end replace content */
 function ucsc_get_post_format() {
 	$post_format = get_post_format();
 	// echo $post_format;
@@ -95,13 +111,6 @@ echo '<pre>';
 	}
 
 }
-
-// add_action('wp_head', 'show_template');
-function show_template() {
-    global $template;
-    echo '<pre>' . basename( $template ) . '<pre>';
-}
-
 
 /**
  * Exclude Category from Blog
