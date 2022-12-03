@@ -18,24 +18,24 @@
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/**	
+/**
  * replace content */
 
 
 /* Add a paragraph only to Pages. */
-function my_added_page_content ( $content ) {
+function my_added_page_content( $content ) {
 		$sample_page = 2;
-    if ( is_page($sample_page) ) {
+	if ( is_page( $sample_page ) ) {
 				$new_content = '<p>My new content</p>';
-				$content =$new_content;
-        return $content;
-    }
- 
-    return $content;
-}
-add_filter( 'the_content', 'my_added_page_content');
+				$content     = $new_content;
+		return $content;
+	}
 
-/**	
+	return $content;
+}
+add_filter( 'the_content', 'my_added_page_content' );
+
+/**
  * end replace content */
 function ucsc_get_post_format() {
 	$post_format = get_post_format();
@@ -87,7 +87,7 @@ function location() {
 function which_template() {
 	 global $wp_query;
 	 global $template;
-echo '<pre>';
+	echo '<pre>';
 	var_dump( $wp_query->query_vars );
 	echo '</pre>';
 
@@ -104,10 +104,9 @@ echo '<pre>';
 		// Blog page
 		echo '<pre>is_home()</pre>';
 		echo '<p>Static Blog Page = assign page as Blog Page</p>';
-	}else {
+	} else {
 
 		echo '<pre>nope</pre>';
-		
 
 	}
 
