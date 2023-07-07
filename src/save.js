@@ -4,7 +4,7 @@
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 
 /**
  * The save function defines the way in which the different attributes should
@@ -17,7 +17,21 @@ import { useBlockProps } from '@wordpress/block-editor';
  * @param {Object} props.attributes Available block attributes.
  * @return {WPElement} Element to render.
  */
-export default function save({ attributes }) {
+export default function save() {
 	const blockProps = useBlockProps.save();
-	return <div {...blockProps}>{attributes.message}</div>;
+	return (
+		<div {...blockProps}>
+		<details open="false" >
+				<summary><input
+					placeholder='Accordion Item Title'
+					value={attributes.title}
+					onKeyUp={event => {
+						event.preventDefault();
+					}}
+					onChange={e => setAttributes({ title: e.target.value })}
+					style={{ "width": "100%" }} /></summary>
+				<InnerBlocks />
+			</details>
+		</div>
+	);
 }

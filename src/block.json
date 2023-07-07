@@ -8,10 +8,11 @@
 	"icon": "flag",
 	"description": "Blackbird Playground Blocks",
 	"attributes": {
-		"message": {
-			"type": "string",
-			"source": "text",
-			"selector": "div"
+		"openOnPageLoad": {
+			"type": "boolean"
+		},
+		"title": {
+			"type": "string"
 		}
 	},
 	"supports": {

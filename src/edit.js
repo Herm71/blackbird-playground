@@ -3,7 +3,7 @@
  *
  * @see https://developer.wordpress.org/block-editor/packages/packages-components/
  */
-import { TextControl } from '@wordpress/components';
+import { Panel, PanelBody, CheckboxControl } from '@wordpress/components';
 
 
 /**
@@ -12,7 +12,7 @@ import { TextControl } from '@wordpress/components';
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 
 import './editor.scss';
 /**
@@ -30,10 +30,29 @@ import './editor.scss';
 export default function Edit({ attributes, setAttributes }) {
 	const blockProps = useBlockProps();
 	return (
-		<TextControl
-			{...blockProps}
-			value={attributes.message}
-			onChange={(val) => setAttributes({ message: val })}
-		/>
+		<div {...blockProps}>
+			<InspectorControls key="setting">
+				<Panel>
+					<PanelBody>
+						<CheckboxControl
+							label="Open on page load"
+							checked={attributes.openOnPageLoad}
+							onChange={newValue => setAttributes({ openOnPageLoad: newValue })}
+						></CheckboxControl>
+					</PanelBody>
+				</Panel>
+			</InspectorControls>
+			<details open="true" >
+				<summary><input
+					placeholder='Accordion Item Title'
+					value={attributes.title}
+					onKeyUp={event => {
+						event.preventDefault();
+					}}
+					onChange={e => setAttributes({ title: e.target.value })}
+					style={{ "width": "100%" }} /></summary>
+				<InnerBlocks />
+			</details>
+		</div>
 	);
 }
