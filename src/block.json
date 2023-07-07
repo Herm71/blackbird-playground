@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "blackbird/birdblocks",
+	"version": "0.1.0",
+	"title": "Blackbird Blocks",
+	"category": "text",
+	"icon": "flag",
+	"description": "Blackbird Playground Blocks",
+	"attributes": {
+		"message": {
+			"type": "string",
+			"source": "text",
+			"selector": "div"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "birdblocks",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
+}
