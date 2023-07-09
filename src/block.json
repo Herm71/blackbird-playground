@@ -15,7 +15,7 @@
 		}
 	},
 	"supports": {
-		"html": false
+		"html": true
 	},
 	"textdomain": "birdblocks",
 	"editorScript": "file:./index.js",
