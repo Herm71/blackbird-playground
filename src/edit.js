@@ -12,7 +12,7 @@ import { TextControl } from '@wordpress/components';
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, RichText } from '@wordpress/block-editor';
 
 import './editor.scss';
 /**
@@ -28,12 +28,18 @@ import './editor.scss';
  * @return {WPElement} Element to render.
  */
 export default function Edit({ attributes, setAttributes }) {
+	function onChangeContent() {
+		console.log("Working!");
+	}
 	const blockProps = useBlockProps();
 	return (
-		<TextControl
+		<RichText
 			{...blockProps}
-			value={attributes.message}
-			onChange={(val) => setAttributes({ message: val })}
+			tagName="h2" // The tag here is the element output and editable in the admin
+			value={attributes.content} // Any existing content, either from the database or an attribute default
+			allowedFormats={['core/bold', 'core/italic']} // Allow the content to be made bold or italic, but do not allow other formatting options
+			onChange={(content) => setAttributes({ content })} // Store updated content as a block attribute
+			placeholder={__('Heading...')} // Display this text before any content has been added by the user
 		/>
 	);
 }
