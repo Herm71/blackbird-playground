@@ -28,10 +28,12 @@ function create_block_birdblocks_block_init() {
 add_action( 'init', 'bb_register_block_template' );
 
 function bb_register_block_template() {
-		register_block_template( 'devblog-plugin-templates//my-template', [
-    'title'     => __( 'Example', 'devblog-plugin-templates' ),
-    'description' => __( 'An example block template from a plugin.', 'devblog-plugin-templates' ),
-    'content'   => '
+		register_block_template(
+			'devblog-plugin-templates//my-template',
+			array(
+				'title'       => __( 'Example', 'devblog-plugin-templates' ),
+				'description' => __( 'An example block template from a plugin.', 'devblog-plugin-templates' ),
+				'content'     => '
         <!-- wp:template-part {"slug":"header","area":"header","tagName":"header"} /-->
         <!-- wp:group {"tagName":"main"} -->
         <main class="wp-block-group">
@@ -44,8 +46,63 @@ function bb_register_block_template() {
             <!-- /wp:group -->
         </main>
         <!-- /wp:group -->
-        <!-- wp:template-part {"slug":"footer","area":"footer","tagName":"footer"} /-->'
-] );
+        <!-- wp:template-part {"slug":"footer","area":"footer","tagName":"footer"} /-->',
+			)
+		);
 }
 
+add_filter( 'get_block_type_variations', 'modify_block_type_variations', 10, 2 );
+add_filter( 'get_block_type_variations', 'modify_block_type_variations2', 10, 2 );
 
+function modify_block_type_variations( $variations, $block_type ) {
+	if ( 'core/search' !== $block_type->name ) {
+			return $variations;
+	}
+
+		$variations[] = array(
+			'name'        => 'fund-search',
+			'title'       => __( 'Fund Search', 'birdblocks' ),
+			'description' => __( 'Search only for fund posts', 'birdblocks' ),
+			'attributes'  => array(
+				'query' => array(
+					'post_type' => 'fund',
+				),
+			),
+		);
+
+		return $variations;
+}
+
+function modify_block_type_variations2( $variations, $block_type ) {
+	if ( 'core/search' !== $block_type->name ) {
+			return $variations;
+	} elseif ( 'core/search' === $block_type->name ) {
+			$variations[] = array(
+				'name'        => 'key-search',
+				'title'       => __( 'Keyword Search', 'birdblocks' ),
+				'description' => __( 'Search only in keyword taxonomy', 'birdblocks' ),
+				'attributes'  => array(
+					'query' => array(
+						'taxonomy' => 'keyword',
+					),
+				),
+			);
+	}
+
+		return $variations;
+}
+
+// namespace birdblocks;
+
+function render_search_template( $template ) {
+   global $wp_query;
+   $post_type = get_query_var( 'post_type' );
+
+   if ( ! empty( $wp_query->is_search ) && $post_type == 'fund') {
+      return locate_template( 'wp-custom-template-fund-search-results.html' );  //  redirect to custom-post-type-search.php
+   }
+
+   return $template;
+}
+
+// add_filter( 'template_include', __NAMESPACE__ . '\\render_search_template' );
