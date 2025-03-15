@@ -25,7 +25,7 @@ function create_block_birdblocks_block_init() {
 }
 // add_action( 'init', 'create_block_birdblocks_block_init' );
 
-add_action( 'init', 'bb_register_block_template' );
+// add_action( 'init', 'bb_register_block_template' );
 
 function bb_register_block_template() {
 		register_block_template(
