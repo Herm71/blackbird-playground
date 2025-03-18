@@ -25,34 +25,7 @@ function create_block_birdblocks_block_init() {
 }
 // add_action( 'init', 'create_block_birdblocks_block_init' );
 
-// add_action( 'init', 'bb_register_block_template' );
-
-function bb_register_block_template() {
-		register_block_template(
-			'devblog-plugin-templates//my-template',
-			array(
-				'title'       => __( 'Example', 'devblog-plugin-templates' ),
-				'description' => __( 'An example block template from a plugin.', 'devblog-plugin-templates' ),
-				'content'     => '
-        <!-- wp:template-part {"slug":"header","area":"header","tagName":"header"} /-->
-        <!-- wp:group {"tagName":"main"} -->
-        <main class="wp-block-group">
-            <!-- wp:group {"layout":{"type":"constrained"}} -->
-            <div class="wp-block-group">
-                <!-- wp:paragraph -->
-                <p>This is a plugin-registered template.</p>
-                <!-- /wp:paragraph -->
-            </div>
-            <!-- /wp:group -->
-        </main>
-        <!-- /wp:group -->
-        <!-- wp:template-part {"slug":"footer","area":"footer","tagName":"footer"} /-->',
-			)
-		);
-}
-
 add_filter( 'get_block_type_variations', 'modify_block_type_variations', 10, 2 );
-add_filter( 'get_block_type_variations', 'modify_block_type_variations2', 10, 2 );
 
 function modify_block_type_variations( $variations, $block_type ) {
 	if ( 'core/search' !== $block_type->name ) {
@@ -73,6 +46,9 @@ function modify_block_type_variations( $variations, $block_type ) {
 		return $variations;
 }
 
+
+add_filter( 'get_block_type_variations', 'modify_block_type_variations2', 10, 2 );
+
 function modify_block_type_variations2( $variations, $block_type ) {
 	if ( 'core/search' !== $block_type->name ) {
 			return $variations;
@@ -92,17 +68,18 @@ function modify_block_type_variations2( $variations, $block_type ) {
 		return $variations;
 }
 
-// namespace birdblocks;
 
-function render_search_template( $template ) {
-   global $wp_query;
-   $post_type = get_query_var( 'post_type' );
+/**
+ * Enqueue search template
+ */
+add_action( 'search_template', 'bb_fund_search_template' );
 
-   if ( ! empty( $wp_query->is_search ) && $post_type == 'fund') {
-      return locate_template( 'wp-custom-template-fund-search-results.html' );  //  redirect to custom-post-type-search.php
-   }
+function bb_fund_search_template( $template ) {
+	if ( is_search() && 'fund' === get_query_var( 'post_type' ) ) {
+		// return plugin_dir_path( __FILE__ ) . '/templates/funds-search.php';
+		// return locate_template( 'blackbird-plugin-templates//fund-search' );  //  redirect to custom-post-type-search.php
+		return locate_template( 'wp-custom-template-fund-search-results' );  //  redirect to custom-post-type-search.php
+	}
 
-   return $template;
+	return $template;
 }
-
-// add_filter( 'template_include', __NAMESPACE__ . '\\render_search_template' );
