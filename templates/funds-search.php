@@ -36,7 +36,7 @@ $block_content = '<!-- wp:query {"queryId":15,"query":{"perPage":9,"pages":0,"of
 <?php block_header_area(); ?>
 </header>
 <p>hello world</p>
-<?php echo do_blocks( $block_content );?>
+<?php echo do_blocks( $block_content ); ?>
 <footer class="wp-block-template-part site-footer">
 <?php block_footer_area(); ?>
 </footer>
