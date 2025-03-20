@@ -25,9 +25,9 @@
 // }
 // add_action( 'init', 'create_block_birdblocks_block_init' );
 
-add_filter( 'get_block_type_variations', 'bb_modify_block_type_variations', 10, 2 );
+// add_filter( 'get_block_type_variations', 'bb_create_fund_search_variation', 10, 2 );
 
-function bb_modify_block_type_variations( $variations, $block_type ) {
+function bb_create_fund_search_variation( $variations, $block_type ) {
 	if ( 'core/search' !== $block_type->name ) {
 			return $variations;
 	}
@@ -82,9 +82,24 @@ add_action( 'search_template', 'bb_fund_search_template' );
 
 function bb_fund_search_template( $template ) {
 	if ( is_search() && 'fund' === get_query_var( 'post_type' ) ) {
-		// return plugin_dir_path( __FILE__ ) . '/templates/funds-search.php';
+		return plugin_dir_path( __FILE__ ) . '/templates/funds-search.php';
 		// return locate_template( 'blackbird-plugin-templates//fund-search' );
-		return locate_template( 'wp-custom-template-fund-search-results' );
+		// return locate_template( 'wp-custom-template-fund-search-results.html' );
+		// return locate_template( '' ); // this will return search results in the archive template
+	}
+
+	return $template;
+}
+
+
+// add_action( 'search_template', 'bb_fund_search_template2' );
+
+function bb_fund_search_template2( $template ) {
+	if ( is_search() && 'keyword' === get_query_var( 'taxonomy' ) )  {
+		return plugin_dir_path( __FILE__ ) . '/templates/funds-search.php';
+		// return locate_template( 'blackbird-plugin-templates//fund-search' );
+		// return locate_template( 'wp-custom-template-fund-search-results.html' );
+		// return locate_template( '' ); // this will return search results in the archive template
 	}
 
 	return $template;

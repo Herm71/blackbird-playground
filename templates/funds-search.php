@@ -5,6 +5,8 @@
  */
 
 // Example of rendering a Query Loop block
+$block_header_part = get_block_template( get_stylesheet() . '//site-header', 'wp_template_part' );
+$block_header = $block_header_part && ! empty( $block_header_part->content ) ? do_blocks( $block_header_part->content  ) : '';
 $block_content = '<!-- wp:query {"queryId":15,"query":{"perPage":9,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true},"metadata":{"categories":["posts"],"patternName":"core/query-small-posts","name":"Small image and title"}} -->
 <div class="wp-block-query"><!-- wp:post-template -->
 <!-- wp:columns {"verticalAlignment":"center"} -->
@@ -32,12 +34,14 @@ $block_content = '<!-- wp:query {"queryId":15,"query":{"perPage":9,"pages":0,"of
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 <div class="wp-site-blocks">
-<header class="wp-block-template-part site-header">
-<?php block_header_area(); ?>
+<header class="header-region wp-block-template-part">
+<?php //echo $block_header;
+	block_header_area(); 
+?>
 </header>
-<p>hello world</p>
+<p>plugin PHP template</p>
 <?php echo do_blocks( $block_content ); ?>
-<footer class="wp-block-template-part site-footer">
+<footer class="footer-region wp-block-template-part">
 <?php block_footer_area(); ?>
 </footer>
 </div>
