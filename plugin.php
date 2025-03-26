@@ -25,48 +25,7 @@
 // }
 // add_action( 'init', 'create_block_birdblocks_block_init' );
 
-// add_filter( 'get_block_type_variations', 'bb_create_fund_search_variation', 10, 2 );
 
-function bb_create_fund_search_variation( $variations, $block_type ) {
-	if ( 'core/search' !== $block_type->name ) {
-			return $variations;
-	}
-
-		$variations[] = array(
-			'name'        => 'fund-search',
-			'title'       => __( 'Fund Search', 'birdblocks' ),
-			'description' => __( 'Search only for fund posts', 'birdblocks' ),
-			'attributes'  => array(
-				'query' => array(
-					'post_type' => 'fund',
-				),
-			),
-		);
-
-		return $variations;
-}
-
-
-// add_filter( 'get_block_type_variations', 'bb_modify_block_type_variations2', 10, 2 );
-
-function bb_modify_block_type_variations2( $variations, $block_type ) {
-	if ( 'core/search' !== $block_type->name ) {
-			return $variations;
-	} elseif ( 'core/search' === $block_type->name ) {
-			$variations[] = array(
-				'name'        => 'key-search',
-				'title'       => __( 'Keyword Search', 'birdblocks' ),
-				'description' => __( 'Search only in keyword taxonomy', 'birdblocks' ),
-				'attributes'  => array(
-					'query' => array(
-						'taxonomy' => 'keyword',
-					),
-				),
-			);
-	}
-
-		return $variations;
-}
 
 
 /**
@@ -78,7 +37,7 @@ function bb_modify_block_type_variations2( $variations, $block_type ) {
  * @param string $template
  * @return string
  */
-add_action( 'search_template', 'bb_fund_search_template' );
+// add_action( 'search_template', 'bb_fund_search_template' );
 
 function bb_fund_search_template( $template ) {
 	if ( is_search() && 'fund' === get_query_var( 'post_type' ) ) {
@@ -91,16 +50,76 @@ function bb_fund_search_template( $template ) {
 	return $template;
 }
 
+// add_action( 'init', 'ucscgiving_register_featured_image_block_binding' );
+/**
+ * Register Custom Block Binding Source
+ *
+ * Registers a custom callback that concatenates
+ * the Giving BASE url with the Fund Designation Code
+ *
+ * @return void
+ */
+// function ucscgiving_register_featured_image_block_binding() {
+// 	register_block_bindings_source(
+// 		'ucscgiving/featured-image',
+// 		array(
+// 			'label'              => __( 'Featured Image', 'ucscgiving' ),
+// 			'get_value_callback' => 'ucscgiving_featured_image',
+// 		)
+// 	);
+// }
 
-// add_action( 'search_template', 'bb_fund_search_template2' );
 
-function bb_fund_search_template2( $template ) {
-	if ( is_search() && 'keyword' === get_query_var( 'taxonomy' ) )  {
-		return plugin_dir_path( __FILE__ ) . '/templates/funds-search.php';
-		// return locate_template( 'blackbird-plugin-templates//fund-search' );
-		// return locate_template( 'wp-custom-template-fund-search-results.html' );
-		// return locate_template( '' ); // this will return search results in the archive template
+	// Example: Binding the Image block's src attribute to the featured image URL
+add_filter( 'block_bindings_source_value', 'function_name', 10, 5 );
+/**
+ * Filter the value of a block binding source
+ *
+ * @param mixed    $value The value of the block binding source.
+ * @param string   $name The name of the block binding source.
+ * @param array    $source_args The arguments passed to the block binding source callback.
+ * @param WP_Block $block_instance The block instance.
+ * @param string   $attribute_name The name of the attribute.
+ * @return mixed
+ */
+function function_name( $value, $name, $source_args, $block_instance, $attribute_name ) {
+	if ( $name === 'post-featured-image' && $attribute_name === 'src' ) {
+		$image_url = wp_get_attachment_image_url( get_post_thumbnail_id(), 'full' );
+		return $image_url ? $image_url : 'assets/lucy.jpg'; // Placeholder image
 	}
+		return $value;
+}
 
-	return $template;
+
+// add_action( 'init', 'wpse_register_block_bindings' );
+
+function wpse_register_block_bindings() {
+    register_block_bindings_source( 'wpse/featured-image', array(
+        'label'              => esc_html__( 'Featured Image', 'wpse' ),
+        'get_value_callback' => 'wpse_featured_image_bindings'
+    ) );
+}
+
+function wpse_featured_image_bindings( $args ) {
+    if ( ! isset( $args['key'] ) ) {
+        return null;
+    }
+
+    if ( ! has_post_thumbnail() ) {
+        return null;
+    }
+
+    $id  = get_post_thumbnail_id();
+    $url = get_the_post_thumbnail_url();
+    $alt = get_post_meta( $id, '_wp_attachment_image_alt', true );
+		$image_url = 'assets/lucy.jpg';
+
+    switch ( $args['key'] ) {
+        case 'url':
+            return esc_url( $image_url );
+        case 'alt':
+            return  esc_attr( $alt );
+        default:
+            return null;
+    }
 }
