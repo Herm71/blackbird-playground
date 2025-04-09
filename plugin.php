@@ -12,7 +12,22 @@
  *
  * @package           create-block
  */
+/**
+ * Enqueue the Blackbird Playground stylesheet.
+ */
+function blackbird_playground_enqueue_styles() {
+    // Get the plugin directory URL
+    $plugin_url = plugin_dir_url(__FILE__);
 
+    // Enqueue the compiled CSS file
+    wp_enqueue_style(
+        'blackbird-playground-style', // Handle
+        $plugin_url . 'style.css', // Path to the compiled CSS file
+        array(), // Dependencies
+        filemtime(plugin_dir_path(__FILE__) . 'style.css') // Version based on file modification time
+    );
+}
+add_action('wp_enqueue_scripts', 'blackbird_playground_enqueue_styles');
 /**
  * Registers the block using the metadata loaded from the `block.json` file.
  * Behind the scenes, it registers also all assets so they can be enqueued
@@ -29,97 +44,66 @@
 
 
 /**
- * Enqueue search template
- * description: Filters the path of the queried template by type.
- * see: https://developer.wordpress.org/reference/hooks/type_template/
- * see: https://tommcfarlin.com/custom-templates-in-our-wordpress-plugin/
+ * Add Subtitle meta field
+ * Single Blog Post
  *
- * @param string $template
+ * @param  string $block_content Block content to be rendered.
+ * @param  array  $block         Block attributes.
  * @return string
  */
-// add_action( 'search_template', 'bb_fund_search_template' );
+function ucsc_test( $block_content = '', $block = array() ) {
 
-function bb_fund_search_template( $template ) {
-	if ( is_search() && 'fund' === get_query_var( 'post_type' ) ) {
-		return plugin_dir_path( __FILE__ ) . '/templates/funds-search.php';
-		// return locate_template( 'blackbird-plugin-templates//fund-search' );
-		// return locate_template( 'wp-custom-template-fund-search-results.html' );
-		// return locate_template( '' ); // this will return search results in the archive template
+	if ( 'media_coverage' === $post->post_type ) {
+
+		if (
+			// Check if the block is a post title block
+			isset( $block['blockName'] ) &&
+			'core/post-title' === $block['blockName']
+		) {
+			$html = str_replace(
+				$block_content,
+				$block_content . '<p>Hello World</p>',
+				$block_content
+			);
+			return $html;
+		}
 	}
-
-	return $template;
+	return $block_content;
 }
+// add_filter('render_block', 'ucsc_test', 10, 2);
 
-// add_action( 'init', 'ucscgiving_register_featured_image_block_binding' );
-/**
- * Register Custom Block Binding Source
- *
- * Registers a custom callback that concatenates
- * the Giving BASE url with the Fund Designation Code
- *
- * @return void
- */
-// function ucscgiving_register_featured_image_block_binding() {
-// 	register_block_bindings_source(
-// 		'ucscgiving/featured-image',
-// 		array(
-// 			'label'              => __( 'Featured Image', 'ucscgiving' ),
-// 			'get_value_callback' => 'ucscgiving_featured_image',
-// 		)
-// 	);
-// }
-
-
-	// Example: Binding the Image block's src attribute to the featured image URL
-add_filter( 'block_bindings_source_value', 'function_name', 10, 5 );
-/**
- * Filter the value of a block binding source
- *
- * @param mixed    $value The value of the block binding source.
- * @param string   $name The name of the block binding source.
- * @param array    $source_args The arguments passed to the block binding source callback.
- * @param WP_Block $block_instance The block instance.
- * @param string   $attribute_name The name of the attribute.
- * @return mixed
- */
-function function_name( $value, $name, $source_args, $block_instance, $attribute_name ) {
-	if ( $name === 'post-featured-image' && $attribute_name === 'src' ) {
-		$image_url = wp_get_attachment_image_url( get_post_thumbnail_id(), 'full' );
-		return $image_url ? $image_url : 'assets/lucy.jpg'; // Placeholder image
+// add_action('wp_head', 'ucsc_test_head');
+function ucsc_test_head() {
+	 require 'wp-load.php';
+	$block_types = WP_Block_Type_Registry::get_instance()->get_all_registered();
+	$keys        = array();
+	foreach ( $block_types as $key ) {
+		$keys[] = $key->name;
 	}
-		return $value;
+	print_r( $keys );
+
 }
 
+add_filter( 'the_title', 'ucscgiving_filter_media_coverage_title' );
+/**
+ * Add SVG icon to the title of media coverage posts
+ *
+ * @param string $title The post title.
+ * @return string The modified post title.
+ */ 
 
-// add_action( 'init', 'wpse_register_block_bindings' );
-
-function wpse_register_block_bindings() {
-    register_block_bindings_source( 'wpse/featured-image', array(
-        'label'              => esc_html__( 'Featured Image', 'wpse' ),
-        'get_value_callback' => 'wpse_featured_image_bindings'
-    ) );
+function ucscgiving_filter_media_coverage_title( $title ) {
+	global $id, $post;
+	if ( is_admin() ) {
+		return $title;
+	}
+		// Check if the post is a media coverage post
+	if ( $id && $post && $post->post_type === 'media_coverage' ) {
+		// Add the SVG icon to the title
+		$title = $title . ' <svg width="16" height="16" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+						<path d="M4 3h9v9M3 13 13 3"></path>
+					</svg>';
+	}
+	return $title;
 }
 
-function wpse_featured_image_bindings( $args ) {
-    if ( ! isset( $args['key'] ) ) {
-        return null;
-    }
-
-    if ( ! has_post_thumbnail() ) {
-        return null;
-    }
-
-    $id  = get_post_thumbnail_id();
-    $url = get_the_post_thumbnail_url();
-    $alt = get_post_meta( $id, '_wp_attachment_image_alt', true );
-		$image_url = 'assets/lucy.jpg';
-
-    switch ( $args['key'] ) {
-        case 'url':
-            return esc_url( $image_url );
-        case 'alt':
-            return  esc_attr( $alt );
-        default:
-            return null;
-    }
-}

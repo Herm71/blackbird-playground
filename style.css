@@ -1,0 +1,45 @@
+.ucsc-explore-stories__heading {
+		align-items: center;
+    display: flex;
+    margin-bottom: var(--wp--preset--spacing--30);
+}
+
+.ucsc-explore-stories__heading:before {
+    aspect-ratio: 1;
+    background-color: var(--wp--preset--color--ucsc-pacific-blue);
+    content: "";
+    height: .65em;
+    margin-right: .44em;
+}
+
+.ucsc-explore-stories__title {
+    font-weight: 700;
+    font-size: var(--wp--preset--font-size--three);
+    line-height: var(--wp--custom--line-height--medium);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--ucsc-medium-gray);
+}
+.ucsc-explore-stories__title a {
+    text-decoration: none;
+}
+
+.ucsc-explore-stories__title a:hover {
+    -webkit-text-decoration-skip: ink;
+    color: var(--wp--preset--color--ucsc-secondary-blue);
+    text-decoration: underline;
+    text-decoration-color: var(--wp--preset--color--ucsc-primary-yellow);
+    text-decoration-skip-ink: auto;
+    text-decoration-thickness: .12rem;
+    text-underline-offset: .12em;
+}
+.ucsc-explore-stories__date {
+    font-size: var(--wp--preset--font-size--base);
+    font-weight: 700;
+    padding-top: 1rem;
+}
+
+@media (max-width: 768px) {
+		.fwpl-row.el-8cjrpw {
+    grid-template-columns: 1fr !important;
+}
+}
