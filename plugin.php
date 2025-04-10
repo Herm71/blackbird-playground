@@ -101,8 +101,7 @@ function ucscgiving_filter_media_coverage_title( $title ) {
 	if ( $id && $post && $post->post_type === 'media_coverage' ) {
 		// Add the SVG icon to the title
 		$title = $title . ' <svg width="16" height="16" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-						<path d="M4 3h9v9M3 13 13 3"></path>
-					</svg>';
+						<path d="M4 3h9v9M3 13 13 3"></path></svg>';
 	}
 	return $title;
 }
