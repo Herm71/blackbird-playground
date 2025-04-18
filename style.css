@@ -47,3 +47,19 @@
     grid-template-columns: 1fr !important;
 }
 }
+
+.ucsc-all-news-category a {
+		color: var(--wp--preset--color--ucsc-secondary-blue);
+		text-decoration: none;
+
+}
+
+.ucsc-all-news-category a:hover {
+		-webkit-text-decoration-skip: ink;
+		color: var(--wp--preset--color--ucsc-secondary-blue);
+		text-decoration: underline;
+		text-decoration-color: var(--wp--preset--color--ucsc-primary-yellow);
+		text-decoration-skip-ink: auto;
+		text-decoration-thickness: .12rem;
+		text-underline-offset: .12em;
+}
