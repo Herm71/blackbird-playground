@@ -12,6 +12,10 @@
  *
  * @package           create-block
  */
+
+// Set plugin directory and base name.
+define( 'UCSCCOMMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) ); // Path to plugin directory.
+define( 'UCSCCOMMS_PLUGIN_BASE', plugin_basename( __FILE__ ) ); // Plugin base name 'plugin.php' at root.
 /**
  * Enqueue the Blackbird Playground stylesheet.
  */
@@ -28,81 +32,148 @@ function blackbird_playground_enqueue_styles() {
     );
 }
 add_action('wp_enqueue_scripts', 'blackbird_playground_enqueue_styles');
+
 /**
- * Registers the block using the metadata loaded from the `block.json` file.
- * Behind the scenes, it registers also all assets so they can be enqueued
- * through the block editor in the corresponding context.
+ * ACF JSON Save Point
  *
- * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ * @param [type] $path
+ * @return $path
+ * @package ucsc-giving-functionality
  */
-// function create_block_birdblocks_block_init() {
-// register_block_type( __DIR__ . '/build' );
-// }
-// add_action( 'init', 'create_block_birdblocks_block_init' );
-
-
-
+function ucsccomms_acf_json_save_point( $path ) {
+	$path = UCSCCOMMS_PLUGIN_DIR . 'acf-json';
+	return $path;
+}
+// Set plugin directory for saving ACF JSON files.
+add_filter( 'acf/settings/save_json', 'ucsccomms_acf_json_save_point' );
 
 /**
- * Add Subtitle meta field
- * Single Blog Post
+ * ACF JSON Load Point
  *
- * @param  string $block_content Block content to be rendered.
- * @param  array  $block         Block attributes.
+ * @param [type] $paths
+ * @return $paths
+ * @package ucsc-giving-functionality
+ */
+function ucsccomms_acf_json_load_point( $paths ) {
+	unset( $paths[0] );
+	$paths[] = UCSCCOMMS_PLUGIN_DIR . 'acf-json';
+	return $paths;
+}
+// Set plugin directory for loading ACF JSON files.
+add_filter( 'acf/settings/load_json', 'ucsccomms_acf_json_load_point' );
+
+/**
+ * Register the A-Z Editorial Style Guide shortcode.
+ *
  * @return string
  */
-function ucsc_test( $block_content = '', $block = array() ) {
+// This shortcode outputs the A-Z Editorial Style Guide definitions.
 
-	if ( 'media_coverage' === $post->post_type ) {
+add_shortcode( 'style-definition','bb_a_z_style_guide_single_loop' );
 
-		if (
-			// Check if the block is a post title block
-			isset( $block['blockName'] ) &&
-			'core/post-title' === $block['blockName']
-		) {
-			$html = str_replace(
-				$block_content,
-				$block_content . '<p>Hello World</p>',
-				$block_content
-			);
-			return $html;
-		}
-	}
-	return $block_content;
-}
-// add_filter('render_block', 'ucsc_test', 10, 2);
+function bb_a_z_style_guide_single_loop(){
 
-// add_action('wp_head', 'ucsc_test_head');
-function ucsc_test_head() {
-	 require 'wp-load.php';
-	$block_types = WP_Block_Type_Registry::get_instance()->get_all_registered();
-	$keys        = array();
-	foreach ( $block_types as $key ) {
-		$keys[] = $key->name;
-	}
-	print_r( $keys );
+	$finaldefs = '';
 
+	if( have_rows('style_definitions') ):while( have_rows('style_definitions') ): the_row();
+		$azItem = get_sub_field('editorial_style_item');
+		$azDef = get_sub_field('editorial_style_definition');		
+		$finaldefs .= '<p><b>'.$azItem.':</b></p>'.$azDef.'<hr>';
+		endwhile;
+	endif;
+
+return $finaldefs;
 }
 
-add_filter( 'the_title', 'ucscgiving_filter_media_coverage_title' );
 /**
- * Add SVG icon to the title of media coverage posts
+ * Register the A-Z Editorial Style Guide archive shortcode.
  *
- * @param string $title The post title.
- * @return string The modified post title.
- */ 
+ * @return string
+ */
+// This shortcode outputs the A-Z Editorial Style Guide archive loop.
+// It retrieves all posts of the 'a_z_style_guide' post type, ordered by title in ascending order, and displays each post's title along with its style definitions.
+add_shortcode( 'style-archive','bb_a_z_styles_archive_loop' );
 
-function ucscgiving_filter_media_coverage_title( $title ) {
-	global $id, $post;
-	if ( is_admin() ) {
-		return $title;
-	}
-		// Check if the post is a media coverage post
-	if ( $id && $post && $post->post_type === 'media_coverage' ) {
-		// Add the SVG icon to the title
-		$title = $title . ' <svg width="16" height="16" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-						<path d="M4 3h9v9M3 13 13 3"></path></svg>';
-	}
-	return $title;
+function bb_a_z_styles_archive_loop() {
+	$finalloop = '';
+
+	// Call Post
+	$args = array (
+	'post_type' => 'a_z_style_guide',
+	'orderby' => 'title',
+	'order' => 'ASC',
+	'posts_per_page' => -1,
+	);
+
+	$azDir = new \WP_Query( $args );
+
+	if ($azDir->have_posts()) :
+		while ($azDir->have_posts()) :
+			$azDir->the_post();
+			$azTitle = get_the_title();
+			$finalloop .= '<h2>'.$azTitle.'</h2>';
+			if( have_rows('style_definitions') ):
+				while( have_rows('style_definitions') ):
+					the_row();
+					// vars
+					$azItem = get_sub_field('editorial_style_item');
+					$azDef = get_sub_field('editorial_style_definition');
+					$finalloop .= '<p><b>'.$azItem.':</b></p>'.$azDef.'<hr>';
+				endwhile;
+			endif;
+		endwhile;
+	endif;
+
+	return $finalloop;
+
+	wp_reset_postdata();
 }
 
+/**
+ * Register Search block variation for Fund post type
+ * description: Registers a custom block variation for the Fund post type
+ *
+ * @param mixed         $variations
+ * @param WP_Block_Type $block_type The block type being filtered.
+ * @return mixed
+ */
+function ucscgiving_create_style_guide_search_variation( $variations, $block_type ) {
+	if ( 'core/search' !== $block_type->name ) {
+			return $variations;
+	}
+
+		$variations[] = array(
+			'name'        => 'styleguide-search',
+			'title'       => __( 'Style Guide Search', 'ucscgiving' ),
+			'description' => __( 'Search only Style Guide posts', 'ucscgiving' ),
+			'attributes'  => array(
+				'query'       => array(
+					'post_type' => 'a_z_style_guide',
+				),
+				'placeholder' => __( 'Search Style Guide', 'ucscgiving' ),
+				'buttonText'  => __( 'Search Style Guide', 'ucscgiving' ),
+				'label'       => __( 'Search Style Guide', 'ucscgiving' ),
+			),
+		);
+
+		return $variations;
+}
+
+add_filter( 'get_block_type_variations', 'ucscgiving_create_style_guide_search_variation', 10, 2 );
+
+/**
+ * Return Fund search results in Fund archive template
+ * description: Returns the Fund search results in its archive template.
+ *
+ * @param string $template
+ * @return string
+ */
+function ucscgiving_style_guide_search_template( $template ) {
+	if ( is_search() && 'a_z_style_guide' === get_query_var( 'post_type' ) ) {
+		return locate_template( '' ); // this will return search results in the archive template.
+	}
+
+	return $template;
+}
+
+add_action( 'search_template', 'ucscgiving_style_guide_search_template' );
