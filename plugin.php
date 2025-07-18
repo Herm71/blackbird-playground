@@ -177,3 +177,47 @@ function ucscgiving_style_guide_search_template( $template ) {
 }
 
 add_action( 'search_template', 'ucscgiving_style_guide_search_template' );
+
+function custom_filter_posts( $query ) {
+    if ( ! is_admin() && $query->is_main_query() && is_search() && 'a_z_style_guide' === get_query_var( 'post_type' ) ) {
+        // Only proceed if there's a search term
+        if ( ! empty( $query->query_vars['s'] ) ) {
+            global $wpdb;
+            
+            $search_term = $query->query_vars['s'];
+            
+            // Get posts that have matching sub-field values
+            $sql = $wpdb->prepare("
+                SELECT DISTINCT p.ID 
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                WHERE p.post_type = 'a_z_style_guide'
+                AND p.post_status = 'publish'
+                AND (
+                    (pm.meta_key LIKE %s AND pm.meta_value LIKE %s)
+                    OR 
+                    (pm.meta_key LIKE %s AND pm.meta_value LIKE %s)
+                )
+                ORDER BY p.post_title ASC
+            ", 
+                'style_definitions_%_editorial_style_item',
+                '%' . $wpdb->esc_like($search_term) . '%',
+                'style_definitions_%_editorial_style_definition', 
+                '%' . $wpdb->esc_like($search_term) . '%'
+            );
+            
+            $post_ids = $wpdb->get_col($sql);
+            
+            if (!empty($post_ids)) {
+                $query->set('post__in', $post_ids);
+                $query->set('orderby', 'post__in'); // Maintain the order from the SQL query
+                $query->set('s', ''); // Remove the default search to avoid conflicts
+            } else {
+                // If no matches found, return no posts
+                $query->set('post__in', array(0));
+                $query->set('s', '');
+            }
+        }
+    }
+}
+add_action( 'pre_get_posts', 'custom_filter_posts' );
