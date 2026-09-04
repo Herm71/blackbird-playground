@@ -14,6 +14,7 @@
 - Never commit to main directly
 - Use atomic commits -- one logical change per commit
 - Always include a test commit with implementation commits
+- Update ROADMAP.md file to reflect work done on branch
 
 ### Pull Requests (PRs)
 
