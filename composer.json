@@ -4,11 +4,14 @@
     "type": "project",
     "require-dev": {
         "wp-coding-standards/wpcs": "^2.3",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2"
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
+        "phpunit/phpunit": "^9.6",
+        "yoast/phpunit-polyfills": "^2.0"
     },
     "scripts": {
         "lint": "./vendor/bin/phpcs",
-        "lint-fix": "./vendor/bin/phpcbf --extensions=php ."
+        "lint-fix": "./vendor/bin/phpcbf --extensions=php .",
+        "test": "phpunit"
     },
     "autoload": {
         "psr-4": {
@@ -25,6 +28,9 @@
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "platform": {
+            "php": "8.3"
         }
     }
 }

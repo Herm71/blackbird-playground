@@ -93,16 +93,29 @@ grep the wider site for callers before committing one.
 
 ## Environment
 
-There is **no test harness** — no PHPUnit in `composer.json`, no `tests/`.
-AGENTS.md requires a test commit alongside each implementation commit, which is
-impossible until ROADMAP Phase 0 lands. Phase 0 gates every other phase.
+Tests are integration tests against real WordPress, run inside Docker via
+`wp-env`. They do not run on the host, and this is not a preference — host PHP
+8.5 has no `mysqli`, `pdo_mysql`, `pdo_sqlite`, or `sqlite3` extension and no
+MySQL is installed, so it cannot talk to WordPress at all. It also lacks
+`mbstring`, so PHPUnit itself refuses to start; a host `composer test` exits 1
+with an extension error before `tests/bootstrap.php` is even reached. The
+bootstrap carries its own guard with setup instructions, which is what a host
+that gets further (mbstring present, no WP test library) will hit instead.
 
-There is **no local WordPress environment** — no wp-env, Docker, DDEV, or Lando
-config. Integration tests against real `WP_Query` / `pre_get_posts` behavior
-need one stood up first.
+```bash
+npm run env:start          # first run pulls images; slow
+npm run test:php:install   # composer install inside the container
+npm run test:php           # run the suite
+```
 
-Local PHP is 8.5; the plugin header claims `Requires PHP: 7.0`. WPCS is pinned
-at `^2.3`, which predates PHP 8 sniffs.
+`composer test` is the in-container entry point. Running it on the host fails
+by design — use `npm run test:php`.
+
+The container runs PHP 8.3, pinned in `.wp-env.json`, and `composer.json` sets
+`config.platform.php` to match so host-side resolution produces
+container-compatible dependencies. Local CLI PHP is 8.5; the plugin header
+claims `Requires PHP: 7.0`. WPCS is pinned at `^2.3`, which predates PHP 8
+sniffs.
 
 ## Commands
 
@@ -110,6 +123,9 @@ at `^2.3`, which predates PHP 8 sniffs.
 npm run build          # compile src/ -> build/
 npm run start          # watch mode
 npm run zip            # build + wp-scripts plugin-zip
+npm run env:start      # start WordPress + MySQL in Docker
+npm run test:php       # PHPUnit inside the container
+npm run env:destroy    # tear down, including the database
 composer lint-fix      # phpcbf --extensions=php . — passes a path, so unlike
                        # `composer lint` it actually runs. Rewrites in place.
 ```
