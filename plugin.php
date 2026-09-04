@@ -124,9 +124,9 @@ function bb_a_z_styles_archive_loop() {
 		endwhile;
 	endif;
 
-	return $finalloop;
-
 	wp_reset_postdata();
+
+	return $finalloop;
 }
 
 /**
