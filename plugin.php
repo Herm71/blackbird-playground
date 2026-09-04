@@ -78,7 +78,7 @@ function bb_a_z_style_guide_single_loop(){
 	if( have_rows('style_definitions') ):while( have_rows('style_definitions') ): the_row();
 		$azItem = get_sub_field('editorial_style_item');
 		$azDef = get_sub_field('editorial_style_definition');		
-		$finaldefs .= '<p><b>'.$azItem.':</b></p>'.$azDef.'<hr>';
+		$finaldefs .= '<p><b>' . esc_html( $azItem ) . ':</b></p>' . wp_kses_post( $azDef ) . '<hr>';
 		endwhile;
 	endif;
 
@@ -118,7 +118,7 @@ function bb_a_z_styles_archive_loop() {
 					// vars
 					$azItem = get_sub_field('editorial_style_item');
 					$azDef = get_sub_field('editorial_style_definition');
-					$finalloop .= '<p><b>'.$azItem.':</b></p>'.$azDef.'<hr>';
+					$finalloop .= '<p><b>' . esc_html( $azItem ) . ':</b></p>' . wp_kses_post( $azDef ) . '<hr>';
 				endwhile;
 			endif;
 		endwhile;

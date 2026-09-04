@@ -48,6 +48,10 @@ if ( ! file_exists( $blackbird_tests_dir . '/includes/functions.php' ) ) {
 
 require_once $blackbird_tests_dir . '/includes/functions.php';
 
+// Test support. The ACF stub must be defined before plugin.php runs, since the
+// shortcodes call into the row API as soon as they are invoked.
+require_once __DIR__ . '/Support/acf-stub.php';
+
 /**
  * Load the plugin under test before WordPress finishes booting.
  *
@@ -60,3 +64,6 @@ function blackbird_manually_load_plugin() {
 tests_add_filter( 'muplugins_loaded', 'blackbird_manually_load_plugin' );
 
 require $blackbird_tests_dir . '/includes/bootstrap.php';
+
+// Depends on WP_UnitTestCase, so it loads after the WordPress bootstrap.
+require_once __DIR__ . '/Support/BlackbirdTestCase.php';
