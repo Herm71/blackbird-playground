@@ -15,14 +15,17 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Set plugin directory and base name.
-define( 'BLACKBIRD_PLUGIN_VERSION', '0.1.0' ); // Keep in step with the Version header above.
-define( 'UCSCCOMMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) ); // Path to plugin directory.
-define( 'UCSCCOMMS_PLUGIN_BASE', plugin_basename( __FILE__ ) ); // Plugin base name 'plugin.php' at root.
+if ( ! defined( 'BLACKBIRD_PLUGIN_VERSION' ) ) {
+	define( 'BLACKBIRD_PLUGIN_VERSION', '0.1.0' ); // Keep in step with the Version header above.
+}
+
+if ( ! defined( 'BLACKBIRD_PLUGIN_DIR' ) ) {
+	define( 'BLACKBIRD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) ); // Path to plugin directory.
+}
 /**
  * Enqueue the Blackbird Playground stylesheet.
  */
-function blackbird_playground_enqueue_styles() {
+function blackbird_enqueue_styles() {
     // Get the plugin directory URL
     $plugin_url = plugin_dir_url(__FILE__);
 
@@ -41,36 +44,36 @@ function blackbird_playground_enqueue_styles() {
         $version
     );
 }
-add_action('wp_enqueue_scripts', 'blackbird_playground_enqueue_styles');
+add_action('wp_enqueue_scripts', 'blackbird_enqueue_styles');
 
 /**
  * ACF JSON Save Point
  *
  * @param [type] $path
  * @return $path
- * @package ucsc-giving-functionality
+ * @package Blackbird_Sandbox
  */
-function ucsccomms_acf_json_save_point( $path ) {
-	$path = UCSCCOMMS_PLUGIN_DIR . 'acf-json';
+function blackbird_acf_json_save_point( $path ) {
+	$path = BLACKBIRD_PLUGIN_DIR . 'acf-json';
 	return $path;
 }
 // Set plugin directory for saving ACF JSON files.
-add_filter( 'acf/settings/save_json', 'ucsccomms_acf_json_save_point' );
+add_filter( 'acf/settings/save_json', 'blackbird_acf_json_save_point' );
 
 /**
  * ACF JSON Load Point
  *
  * @param [type] $paths
  * @return $paths
- * @package ucsc-giving-functionality
+ * @package Blackbird_Sandbox
  */
-function ucsccomms_acf_json_load_point( $paths ) {
+function blackbird_acf_json_load_point( $paths ) {
 	unset( $paths[0] );
-	$paths[] = UCSCCOMMS_PLUGIN_DIR . 'acf-json';
+	$paths[] = BLACKBIRD_PLUGIN_DIR . 'acf-json';
 	return $paths;
 }
 // Set plugin directory for loading ACF JSON files.
-add_filter( 'acf/settings/load_json', 'ucsccomms_acf_json_load_point' );
+add_filter( 'acf/settings/load_json', 'blackbird_acf_json_load_point' );
 
 /**
  * Register the A-Z Editorial Style Guide shortcode.
@@ -79,9 +82,9 @@ add_filter( 'acf/settings/load_json', 'ucsccomms_acf_json_load_point' );
  */
 // This shortcode outputs the A-Z Editorial Style Guide definitions.
 
-add_shortcode( 'style-definition','bb_a_z_style_guide_single_loop' );
+add_shortcode( 'style-definition','blackbird_style_guide_single_loop' );
 
-function bb_a_z_style_guide_single_loop(){
+function blackbird_style_guide_single_loop(){
 
 	$finaldefs = '';
 
@@ -102,9 +105,9 @@ return $finaldefs;
  */
 // This shortcode outputs the A-Z Editorial Style Guide archive loop.
 // It retrieves all posts of the 'a_z_style_guide' post type, ordered by title in ascending order, and displays each post's title along with its style definitions.
-add_shortcode( 'style-archive','bb_a_z_styles_archive_loop' );
+add_shortcode( 'style-archive','blackbird_style_guide_archive_loop' );
 
-function bb_a_z_styles_archive_loop() {
+function blackbird_style_guide_archive_loop() {
 	$finalloop = '';
 
 	// Call Post
@@ -147,7 +150,7 @@ function bb_a_z_styles_archive_loop() {
  * @param WP_Block_Type $block_type The block type being filtered.
  * @return mixed
  */
-function ucscgiving_create_style_guide_search_variation( $variations, $block_type ) {
+function blackbird_create_style_guide_search_variation( $variations, $block_type ) {
 	if ( 'core/search' !== $block_type->name ) {
 			return $variations;
 	}
@@ -169,9 +172,9 @@ function ucscgiving_create_style_guide_search_variation( $variations, $block_typ
 		return $variations;
 }
 
-add_filter( 'get_block_type_variations', 'ucscgiving_create_style_guide_search_variation', 10, 2 );
+add_filter( 'get_block_type_variations', 'blackbird_create_style_guide_search_variation', 10, 2 );
 
-function custom_filter_posts( $query ) {
+function blackbird_filter_style_guide_search( $query ) {
     if ( ! is_admin() && $query->is_main_query() && is_search() && 'a_z_style_guide' === get_query_var( 'post_type' ) ) {
         // Only proceed if there's a search term
         if ( ! empty( $query->query_vars['s'] ) ) {
@@ -213,4 +216,4 @@ function custom_filter_posts( $query ) {
         }
     }
 }
-add_action( 'pre_get_posts', 'custom_filter_posts' );
+add_action( 'pre_get_posts', 'blackbird_filter_style_guide_search' );

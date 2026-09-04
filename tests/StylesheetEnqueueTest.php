@@ -52,7 +52,7 @@ class StylesheetEnqueueTest extends WP_UnitTestCase {
 	 * The normal case still gets a cache-busting version.
 	 */
 	public function test_enqueues_with_a_version_when_stylesheet_exists() {
-		blackbird_playground_enqueue_styles();
+		blackbird_enqueue_styles();
 
 		$registered = wp_styles()->registered;
 
@@ -69,7 +69,7 @@ class StylesheetEnqueueTest extends WP_UnitTestCase {
 	public function test_missing_stylesheet_does_not_warn_or_set_false_version() {
 		$this->assertTrue( rename( $this->stylesheet, $this->stashed ), 'Could not stash style.css.' );
 
-		blackbird_playground_enqueue_styles();
+		blackbird_enqueue_styles();
 
 		$registered = wp_styles()->registered;
 
