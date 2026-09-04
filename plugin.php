@@ -161,23 +161,6 @@ function ucscgiving_create_style_guide_search_variation( $variations, $block_typ
 
 add_filter( 'get_block_type_variations', 'ucscgiving_create_style_guide_search_variation', 10, 2 );
 
-/**
- * Return Fund search results in Fund archive template
- * description: Returns the Fund search results in its archive template.
- *
- * @param string $template
- * @return string
- */
-function ucscgiving_style_guide_search_template( $template ) {
-	if ( is_search() && 'a_z_style_guide' === get_query_var( 'post_type' ) ) {
-		return locate_template( '' ); // this will return search results in the archive template.
-	}
-
-	return $template;
-}
-
-add_action( 'search_template', 'ucscgiving_style_guide_search_template' );
-
 function custom_filter_posts( $query ) {
     if ( ! is_admin() && $query->is_main_query() && is_search() && 'a_z_style_guide' === get_query_var( 'post_type' ) ) {
         // Only proceed if there's a search term
