@@ -1,10 +1,11 @@
 # Blackbird Sandbox — Remediation Roadmap
 
 Audit date: 2026-09-04 · Plugin version: 0.1.0 · Baseline commit: 96b72ef
+Last updated: 2026-09-04, after Phase 1.
 
-Status of the codebase: all plugin logic lives in a single 223-line `plugin.php`.
-There is no test harness, PHPCS reports 194 errors, and the built block in
-`build/` is never registered with WordPress.
+Status of the codebase: all plugin logic still lives in a single `plugin.php`.
+A PHPUnit suite now runs against real WordPress in Docker. PHPCS reports 194
+errors, and the built block in `build/` is never registered with WordPress.
 
 Every finding below is tracked as a GitHub issue and every phase as a
 milestone. This document holds the reasoning; the issues hold the working
@@ -15,21 +16,50 @@ state. When the two disagree, the issues are current.
 Severity: **S1** breaks behavior or exposes users · **S2** silently wrong or
 unreachable code · **S3** hygiene, maintainability, convention.
 
-| ID | Issue | Sev | Finding | Location |
-|----|-------|-----|---------|----------|
-| BB-01 | [#6][BB-01] | S1 | Shortcode output concatenates ACF values with no escaping. `editorial_style_item` (ACF `text`) and `editorial_style_definition` (ACF `wysiwyg`) go straight into HTML. Any editor with `edit_posts` can inject script. | `plugin.php:81`, `plugin.php:121` |
-| BB-02 | [#7][BB-02] | S1 | `wp_reset_postdata()` is placed *after* `return` — unreachable. `WP_Query` leaves global `$post` clobbered, corrupting everything rendered after the `[style-archive]` shortcode. | `plugin.php:129` |
-| BB-03 | [#8][BB-03] | S1 | `search_template` is a filter but is registered with `add_action`. The callback runs and its return value is discarded, so the template override never takes effect. | `plugin.php:179` |
-| BB-04 | [#9][BB-04] | S2 | The `blackbird/birdblocks` block is compiled to `build/` but no `register_block_type()` call exists anywhere. The block cannot be inserted. `src/` and `build/` are dead weight. | no PHP registration |
-| BB-05 | [#10][BB-05] | S2 | Text domain mismatch. Header declares `birdblocks`; all six `__()` calls pass `ucscgiving`. No string will ever translate. | header `:11` vs `:147-155` |
-| BB-06 | [#11][BB-06] | S2 | `filemtime()` called with no `file_exists()` guard. Emits a PHP warning and a bad cache-buster if `style.css` is absent from a build. | `plugin.php:31` |
-| BB-07 | [#12][BB-07] | S3 | No `ABSPATH` guard. `plugin.php` executes on direct HTTP request. | `plugin.php` top |
-| BB-08 | [#13][BB-08] | S3 | `define()` calls are unguarded and named `UCSCCOMMS_*` in a plugin named Blackbird — leftover from `ucsc-giving-functionality`. Redefinition notice if that plugin is co-installed. | `plugin.php:17-18` |
-| BB-09 | [#14][BB-09] | S3 | `custom_filter_posts()` is an unprefixed global function on `pre_get_posts`. High collision risk. | `plugin.php:181` |
-| BB-10 | [#15][BB-10] | S3 | Three prefixes coexist: `blackbird_playground_`, `ucsccomms_`, `ucscgiving_`, plus `bb_`. | throughout |
-| BB-11 | [#16][BB-11] | S3 | PHPCS: 194 errors, 10 warnings across `plugin.php` and `templates/`. 151 auto-fixable. | repo-wide |
-| BB-12 | [#17][BB-12] | S3 | `templates/funds-search.php` opens `<?PHP`, has an unbalanced extra `</div>`, and carries commented-out dead code. | `templates/funds-search.php` |
-| BB-13 | [#5][BB-13] | S3 | No test harness. `composer.json` has no PHPUnit; no `tests/` directory exists. | repo-wide |
+| ID | Issue | Status | Sev | Finding | Location |
+|----|-------|--------|-----|---------|----------|
+| BB-01 | [#6][BB-01] | in review | S1 | Shortcode output concatenates ACF values with no escaping. `editorial_style_item` (ACF `text`) and `editorial_style_definition` (ACF `wysiwyg`) go straight into HTML. Any editor with `edit_posts` can inject script. | `plugin.php:81`, `plugin.php:121` |
+| BB-02 | [#7][BB-02] | in review | S1 | `wp_reset_postdata()` is placed *after* `return` — unreachable. `WP_Query` leaves global `$post` clobbered, corrupting everything rendered after the `[style-archive]` shortcode. | `plugin.php:129` |
+| BB-03 | [#8][BB-03] | in review | S1 | `search_template` override resolves `locate_template( '' )`, which returns an empty string, so Style Guide searches lose their search template and fall through to the index fallback. **Not** inert: see the correction below. | `plugin.php:179` |
+| BB-04 | [#9][BB-04] | open | S2 | The `blackbird/birdblocks` block is compiled to `build/` but no `register_block_type()` call exists anywhere. The block cannot be inserted. `src/` and `build/` are dead weight. | no PHP registration |
+| BB-05 | [#10][BB-05] | open | S2 | Text domain mismatch. Header declares `birdblocks`; all six `__()` calls pass `ucscgiving`. No string will ever translate. | header `:11` vs `:147-155` |
+| BB-06 | [#11][BB-06] | open | S2 | `filemtime()` called with no `file_exists()` guard. Emits a PHP warning and a bad cache-buster if `style.css` is absent from a build. | `plugin.php:31` |
+| BB-07 | [#12][BB-07] | open | S3 | No `ABSPATH` guard. `plugin.php` executes on direct HTTP request. | `plugin.php` top |
+| BB-08 | [#13][BB-08] | open | S3 | `define()` calls are unguarded and named `UCSCCOMMS_*` in a plugin named Blackbird — leftover from `ucsc-giving-functionality`. Redefinition notice if that plugin is co-installed. | `plugin.php:17-18` |
+| BB-09 | [#14][BB-09] | open | S3 | `custom_filter_posts()` is an unprefixed global function on `pre_get_posts`. High collision risk. | `plugin.php:181` |
+| BB-10 | [#15][BB-10] | open | S3 | Three prefixes coexist: `blackbird_playground_`, `ucsccomms_`, `ucscgiving_`, plus `bb_`. | throughout |
+| BB-11 | [#16][BB-11] | open | S3 | PHPCS: 194 errors, 10 warnings across `plugin.php` and `templates/`. 151 auto-fixable. | repo-wide |
+| BB-12 | [#17][BB-12] | open | S3 | `templates/funds-search.php` opens `<?PHP`, has an unbalanced extra `</div>`, and carries commented-out dead code. | `templates/funds-search.php` |
+| BB-13 | [#5][BB-13] | **done** | S3 | No test harness. `composer.json` has no PHPUnit; no `tests/` directory exists. | repo-wide |
+
+### Correction: BB-03 was misdiagnosed
+
+The original entry read: "`search_template` is a filter but is registered with
+`add_action`. The callback runs and its return value is discarded, so the
+template override never takes effect."
+
+That is wrong. `add_action()` is a direct alias of `add_filter()`:
+
+```php
+function add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+	return add_filter( $hook_name, $callback, $priority, $accepted_args );
+}
+```
+
+`search_template` is fired with `apply_filters()`, so the return value has
+always been honoured. The override was live, not inert, and it was returning an
+empty string the whole time.
+
+The practical consequences of getting this wrong: the finding was filed as S1
+but described as harmless, and the prescribed fix — flip `add_action` to
+`add_filter` — would have changed nothing while appearing to resolve it. The
+error surfaced only because a regression test written to confirm the callback
+was inert failed instead.
+
+Two lessons carried into later phases. Do not infer runtime behaviour from a
+function's name; `add_action` and `add_filter` differ in how the hook is
+*fired*, not in how it is *registered*. And write the test before the fix — the
+red run is what audits the diagnosis, not just the code.
 
 ### Explicitly not a finding
 
@@ -56,18 +86,43 @@ its own commit that touches no logic.
 
 ### Phases
 
-**Phase 0 — Test harness** (blocks all others) · [milestone][M0]
-Add PHPUnit + WP test scaffolding to `composer.json`, create `tests/`, wire a
-`composer test` script. Land one smoke test proving the harness runs.
-Closes [BB-13].
+**Phase 0 — Test harness** (blocks all others) · [milestone][M0] — **done**
+Shipped as wp-env + wp-phpunit: real WordPress and MySQL in Docker, PHP pinned
+to 8.3, ports 8910/8911. `npm run test:php` is the entry point; `composer test`
+runs inside the container and fails on the host by design.
 
-**Phase 1 — Security and correctness** (S1) · [milestone][M1]
-One commit per finding, each paired with a regression test.
+Mocks were rejected. The S1 findings are integration-shaped — a clobbered
+global `$post`, a filter return value — and mocked call ordering would assert
+that a fix was typed rather than that a defect is gone. That judgement paid off
+immediately: it is what exposed the BB-03 misdiagnosis above.
+
+Docker is not a preference. Host PHP has no `mysqli`, `pdo_mysql`,
+`pdo_sqlite`, or `sqlite3`, and no MySQL is installed.
+
+ACF is stubbed, not installed: `style_definitions` is a Repeater, an ACF PRO
+field that cannot be pulled from wordpress.org. The stub is guarded with
+`function_exists()` so a real install always wins.
+
+**Phase 1 — Security and correctness** (S1) · [milestone][M1] — **in review**
+One commit per finding, each paired with a regression test. Every test was
+confirmed red against the unfixed code before the fix was written.
+
+The three PRs are stacked, not parallel: [BB-01] carries the shared ACF stub
+and base test case the other two need, so [BB-02] branches off it and [BB-03]
+off that. Merge in order.
+
 - [BB-01]: `esc_html()` on `$azItem`, `wp_kses_post()` on `$azDef` (wysiwyg must
-  keep its markup — do not use `esc_html` here). Both call sites.
-- [BB-02]: move `wp_reset_postdata()` above the `return`.
-- [BB-03]: `add_action` → `add_filter`. Verify `locate_template('')` returns what
-  the override actually needs; it currently looks suspect.
+  keep its markup — do not use `esc_html` here). Both call sites. Done.
+- [BB-02]: move `wp_reset_postdata()` above the `return`. Done.
+- [BB-03]: **deleted**, not re-registered. Repair was considered and rejected:
+  a correctly formed `locate_template( array( 'archive-a_z_style_guide.php',
+  'archive.php' ) )` also resolves to an empty string, because the theme is a
+  block theme with no PHP archive templates. Making the override work would
+  require deciding which *block* template should serve these results, which is
+  beyond an S1 fix. The `styleguide-search` variation already scopes them.
+
+  Note this is a visible change: those result pages move from the index
+  fallback to the normal search template.
 
 **Phase 2 — Plugin hygiene** (S2/S3) · [milestone][M2]
 - [BB-05] text domain, [BB-06] `file_exists()` guard, [BB-07] `ABSPATH` guard,
@@ -113,7 +168,8 @@ PSR-4 block. Do not leave it half-wired. Tracked as [#18][PH5].
 - `[style-definition]` and `[style-archive]` render, and content *after*
   `[style-archive]` on the same page still renders correctly ([BB-02] regression).
 - A `<script>` payload saved into an ACF style field renders inert ([BB-01]).
-- Style Guide search returns filtered results ([BB-03]).
+- Style Guide search returns filtered results, rendered through the search
+  template rather than the index fallback ([BB-03]).
 - `composer lint` clean.
 
 [BB-01]: https://github.com/Herm71/blackbird-playground/issues/6
