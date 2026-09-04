@@ -12,7 +12,13 @@
     "lint:style": "wp-scripts lint-style 'src/scss/**/*.scss'",
     "packages-update": "wp-scripts packages-update",
     "postpackages-update": "npm run build",
-    "format:src": "wp-scripts format ./src"
+    "format:src": "wp-scripts format ./src",
+    "env": "wp-env",
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "env:destroy": "wp-env destroy",
+    "test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/blackbird-playground composer test",
+    "test:php:install": "wp-env run tests-cli --env-cwd=wp-content/plugins/blackbird-playground composer install"
   },
   "keywords": [
     "php"
@@ -21,6 +27,7 @@
   "license": "ISC",
   "devDependencies": {
     "@wordpress/components": "^25.3.0",
+    "@wordpress/env": "^11.14.0",
     "@wordpress/scripts": "^26.8.0",
     "standard-version": "^9.5.0"
   }

@@ -34,3 +34,6 @@ utility.php
 *.zip
 
 /vendor/
+
+# PHPUnit
+.phpunit.result.cache
