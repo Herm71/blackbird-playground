@@ -8,7 +8,7 @@
  * Author:            @Herm71
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       birdblocks
+ * Text Domain:       blackbird-playground
  *
  * @package           create-block
  */
@@ -154,15 +154,15 @@ function ucscgiving_create_style_guide_search_variation( $variations, $block_typ
 
 		$variations[] = array(
 			'name'        => 'styleguide-search',
-			'title'       => __( 'Style Guide Search', 'ucscgiving' ),
-			'description' => __( 'Search only Style Guide posts', 'ucscgiving' ),
+			'title'       => __( 'Style Guide Search', 'blackbird-playground' ),
+			'description' => __( 'Search only Style Guide posts', 'blackbird-playground' ),
 			'attributes'  => array(
 				'query'       => array(
 					'post_type' => 'a_z_style_guide',
 				),
-				'placeholder' => __( 'Search Style Guide', 'ucscgiving' ),
-				'buttonText'  => __( 'Search Style Guide', 'ucscgiving' ),
-				'label'       => __( 'Search Style Guide', 'ucscgiving' ),
+				'placeholder' => __( 'Search Style Guide', 'blackbird-playground' ),
+				'buttonText'  => __( 'Search Style Guide', 'blackbird-playground' ),
+				'label'       => __( 'Search Style Guide', 'blackbird-playground' ),
 			),
 		);
 
