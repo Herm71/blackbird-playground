@@ -16,6 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Set plugin directory and base name.
+define( 'BLACKBIRD_PLUGIN_VERSION', '0.1.0' ); // Keep in step with the Version header above.
 define( 'UCSCCOMMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) ); // Path to plugin directory.
 define( 'UCSCCOMMS_PLUGIN_BASE', plugin_basename( __FILE__ ) ); // Plugin base name 'plugin.php' at root.
 /**
@@ -25,12 +26,19 @@ function blackbird_playground_enqueue_styles() {
     // Get the plugin directory URL
     $plugin_url = plugin_dir_url(__FILE__);
 
+    $stylesheet_path = plugin_dir_path( __FILE__ ) . 'style.css';
+
+    // Version on file modification time so the browser picks up rebuilds. Fall
+    // back to the plugin version when the file is absent from a build, rather
+    // than passing filemtime()'s false through as a version.
+    $version = file_exists( $stylesheet_path ) ? filemtime( $stylesheet_path ) : BLACKBIRD_PLUGIN_VERSION;
+
     // Enqueue the compiled CSS file
     wp_enqueue_style(
         'blackbird-playground-style', // Handle
         $plugin_url . 'style.css', // Path to the compiled CSS file
         array(), // Dependencies
-        filemtime(plugin_dir_path(__FILE__) . 'style.css') // Version based on file modification time
+        $version
     );
 }
 add_action('wp_enqueue_scripts', 'blackbird_playground_enqueue_styles');
