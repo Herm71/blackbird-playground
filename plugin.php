@@ -13,6 +13,8 @@
  * @package           create-block
  */
 
+defined( 'ABSPATH' ) || exit;
+
 // Set plugin directory and base name.
 define( 'UCSCCOMMS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) ); // Path to plugin directory.
 define( 'UCSCCOMMS_PLUGIN_BASE', plugin_basename( __FILE__ ) ); // Plugin base name 'plugin.php' at root.
