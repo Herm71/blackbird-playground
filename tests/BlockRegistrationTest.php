@@ -31,8 +31,9 @@ class BlockRegistrationTest extends WP_UnitTestCase {
 	/**
 	 * Registration has to happen on init, not at file scope.
 	 *
-	 * register_block_type_from_metadata() needs the block registry and the
-	 * script registry, neither of which exists when plugin.php is included.
+	 * The registry the metadata call writes into does not exist yet when
+	 * plugin.php is included, and neither does the script registry it
+	 * registers the build assets against.
 	 */
 	public function test_registration_is_hooked_on_init() {
 		$this->assertNotFalse(
