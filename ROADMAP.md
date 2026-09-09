@@ -1,11 +1,11 @@
 # Blackbird Sandbox — Remediation Roadmap
 
 Audit date: 2026-09-04 · Plugin version: 0.1.0 · Baseline commit: 96b72ef
-Last updated: 2026-09-04, after Phase 1.
+Last updated: 2026-09-09, after Phase 3.
 
 Status of the codebase: all plugin logic still lives in a single `plugin.php`.
-A PHPUnit suite now runs against real WordPress in Docker. PHPCS reports 194
-errors, and the built block in `build/` is never registered with WordPress.
+A PHPUnit suite now runs against real WordPress in Docker. PHPCS still reports
+194 errors. The block in `build/` is now registered and insertable.
 
 Every finding below is tracked as a GitHub issue and every phase as a
 milestone. This document holds the reasoning; the issues hold the working
@@ -21,7 +21,7 @@ unreachable code · **S3** hygiene, maintainability, convention.
 | BB-01 | [#6][BB-01] | in review | S1 | Shortcode output concatenates ACF values with no escaping. `editorial_style_item` (ACF `text`) and `editorial_style_definition` (ACF `wysiwyg`) go straight into HTML. Any editor with `edit_posts` can inject script. | `plugin.php:81`, `plugin.php:121` |
 | BB-02 | [#7][BB-02] | in review | S1 | `wp_reset_postdata()` is placed *after* `return` — unreachable. `WP_Query` leaves global `$post` clobbered, corrupting everything rendered after the `[style-archive]` shortcode. | `plugin.php:129` |
 | BB-03 | [#8][BB-03] | in review | S1 | `search_template` override resolves `locate_template( '' )`, which returns an empty string, so Style Guide searches lose their search template and fall through to the index fallback. **Not** inert: see the correction below. | `plugin.php:179` |
-| BB-04 | [#9][BB-04] | open | S2 | The `blackbird/birdblocks` block is compiled to `build/` but no `register_block_type()` call exists anywhere. The block cannot be inserted. `src/` and `build/` are dead weight. | no PHP registration |
+| BB-04 | [#9][BB-04] | **done** | S2 | The `blackbird/birdblocks` block is compiled to `build/` but no `register_block_type()` call exists anywhere. The block cannot be inserted. `src/` and `build/` are dead weight. | `plugin.php:58` |
 | BB-05 | [#10][BB-05] | open | S2 | Text domain mismatch. Header declares `birdblocks`; all six `__()` calls pass `ucscgiving`. No string will ever translate. | header `:11` vs `:147-155` |
 | BB-06 | [#11][BB-06] | open | S2 | `filemtime()` called with no `file_exists()` guard. Emits a PHP warning and a bad cache-buster if `style.css` is absent from a build. | `plugin.php:31` |
 | BB-07 | [#12][BB-07] | open | S3 | No `ABSPATH` guard. `plugin.php` executes on direct HTTP request. | `plugin.php` top |
@@ -131,10 +131,21 @@ off that. Merge in order.
 - [BB-08] and [BB-09] are renames: grep the wider site for external callers before
   committing.
 
-**Phase 3 — Block registration** · [milestone][M3]
-- [BB-04]: `register_block_type_from_metadata( __DIR__ . '/build' )` on `init`.
-  Decide first whether the block is still wanted — if not, delete `src/` and
-  `build/` and drop the `@wordpress/scripts` toolchain instead. Cheaper outcome.
+**Phase 3 — Block registration** · [milestone][M3] — **done**
+- [BB-04]: the block is kept. Deletion was the cheaper outcome on paper, but
+  the block is work in progress, so `src/`, `build/` and the
+  `@wordpress/scripts` toolchain all stay. Registered with
+  `register_block_type_from_metadata( BLACKBIRD_PLUGIN_DIR . 'build' )` on
+  `init`. Done.
+
+  `build/` stays gitignored, so registration is a silent no-op on a checkout
+  that has not been built. That is the pre-existing behaviour, but it would
+  also let the new registration test skip itself into a false green, so
+  `pretest:php` now builds before the suite runs.
+
+  The `@wordpress/scripts` toolchain remaining also means `src/` and `build/`
+  keep contributing the bulk of the PHPCS noise. [BB-11] must scope the
+  ruleset to PHP rather than relying on those directories going away.
 
 **Phase 4 — Formatting sweep** · [milestone][M4]
 - [BB-11], [BB-12]: `composer lint-fix`, then hand-fix the ~43 remaining. Single
