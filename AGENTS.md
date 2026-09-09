@@ -1,6 +1,6 @@
 ## Git Conventions
 
-### All work in this repo
+### All work in this repository
 
 - Eliminate AI-speak; be direct, concise, and technically precise
 - Always work on a branch
@@ -22,5 +22,12 @@
 
 ### PR Descriptions
 
-- Audience: Reviewer who didn't see our chat
-- Include: What changed (bullets, not prose), Why, How to test, Breaking changes, if any
+Include:
+
+- What changed (bullets, not prose)
+- Why it changed
+- How to test
+- Breaking changes, if any
+- Migration steps, if any
+
+Audience: Reviewer who didn't see our chat
