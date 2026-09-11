@@ -17,6 +17,7 @@
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "env:destroy": "wp-env destroy",
+    "pretest:php": "npm run build",
     "test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/blackbird-playground composer test",
     "test:php:install": "wp-env run tests-cli --env-cwd=wp-content/plugins/blackbird-playground composer install"
   },

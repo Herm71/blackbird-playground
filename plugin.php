@@ -47,6 +47,21 @@ function blackbird_enqueue_styles() {
 add_action('wp_enqueue_scripts', 'blackbird_enqueue_styles');
 
 /**
+ * Register the plugin's editor blocks from their compiled metadata.
+ *
+ * Reads build/, not src/: block.json is only rewritten to point at the
+ * compiled asset filenames during the build. build/ is gitignored, so a
+ * checkout that has not run `npm run build` has no metadata to read and
+ * register_block_type_from_metadata() returns false without registering
+ * anything.
+ */
+function blackbird_register_blocks() {
+	register_block_type_from_metadata( BLACKBIRD_PLUGIN_DIR . 'build' );
+}
+// init is the earliest hook where the block and script registries both exist.
+add_action( 'init', 'blackbird_register_blocks' );
+
+/**
  * ACF JSON Save Point
  *
  * @param [type] $path
